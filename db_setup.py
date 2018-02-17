@@ -22,15 +22,15 @@ class IowaLiquorStoresTable:
     }
 
     store_table_list = [
-        ['store_number', 'integer', 'UNIQUE'],
-        ['store_name', 'text', 'NOT NULL'],
-        ['address', 'text', 'NOT NULL'],
-        ['city', 'text', 'NOT NULL'],
-        ['zip_code', 'integer', 'NOT NULL'],
-        ['store_lat', 'real', 'NOT NULL'],
-        ['store_long', 'real', 'NOT NULL'],
-        ['county_number', 'integer', 'NOT NULL'],
-        ['county_name', 'text', 'NOT NULL'],
+        ['store_number', 'INTEGER', 'PRIMARY KEY'],
+        ['store_name', 'TEXT', 'NOT NULL'],
+        ['address', 'TEXT', 'NOT NULL'],
+        ['city', 'TEXT', 'NOT NULL'],
+        ['zip_code', 'INTEGER', 'NOT NULL'],
+        ['store_lat', 'REAL', 'NOT NULL'],
+        ['store_long', 'REAL', 'NOT NULL'],
+        ['county_number', 'INTEGER', 'NOT NULL'],
+        ['county_name', 'TEXT', 'NOT NULL'],
     ]
 
     def parse_col_str(self, str_list):
@@ -52,3 +52,5 @@ Store_Table = IowaLiquorStoresTable()
 store_table_str = Store_Table.create_table()
 print(store_table_str)
 New_ILS_DB.db.execute(store_table_str)
+
+'''INSERT INTO stores VALUES (2191, 'Keokuk Spirits', '1013 MAIN', 'KEOKUK', 52632, 40.29978, -91.387531, 56, 'LEE')'''
