@@ -32,16 +32,17 @@ def read_csv(filename):
     print('Generator Complete')
 
 def parse_lat_long(data):
-    '''this function takes a row of data, and an index to parse. It regex matches lattitude and longitude values and returns a tuple for lat, long'''
+    '''this function takes an entry. It regex matches lattitude and longitude values
+    inside parens and comma seperated and returns a tuple for lat, long'''
     pattern = re.compile(r'^.*\((?P<lat>-?\d+\.\d+), (?P<long>-?\d+\.\d+).*$')
     try:
         match = pattern.match(data)
         lat, long = match.groups()
     except AttributeError:
-        lat = 'NULL'
-        long = 'NULL'
+        null_string = 'NULL'
+        lat = null_string
+        long = null_string
     
-
     return (lat, long)
 
 
@@ -56,13 +57,10 @@ def batch_stores_output():
 
         if not row[2] in output:
 
-
-
             lat, long = parse_lat_long(row[7].replace('\n', ' '))
 
             row[7] = lat
             row.insert(8, long)
-
 
             for i, data in enumerate(row):
                 row[i] = row[i].replace('"', '')
@@ -70,7 +68,7 @@ def batch_stores_output():
                     row[i] = 'NULL'
 
             output[row[2]] = row[2:11]
-            print(output[row[2]])
+            print('parsed row = ', output[row[2]])
 
     return output
 
@@ -101,9 +99,9 @@ def insert_stores(list_of_stores, database):
                                 row['county_number'],
                                 row['county_name'])
 
-        values = values.replace(r'"NULL"', 'NULL')
+        properly_nulled_values = values.replace(r'"NULL"', 'NULL')
 
-        command = '''INSERT INTO stores VALUES ({})'''.format(values)
+        command = '''INSERT INTO stores VALUES ({})'''.format(properly_nulled_values)
 
         print(command)
 
@@ -115,14 +113,11 @@ def insert_stores(list_of_stores, database):
     database.db.commit()
     print('Inserts Committed')
 
-
-
 database = setup.IowaLiquorDB('sales_db.db')
 
 stores_table = setup.IowaLiquorStoresTable()
 
 database.db.execute(stores_table.create_table())
-
 
 abs_path = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
 all_unique_stores = batch_stores_output()
