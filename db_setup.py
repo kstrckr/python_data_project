@@ -12,20 +12,24 @@ class IowaLiquorStoresTable:
     store_table_list = [
         ['store_number', 'INTEGER', 'PRIMARY KEY'],
         ['store_name', 'TEXT', 'NOT NULL'],
-        ['address', 'TEXT', 'NOT NULL'],
-        ['city', 'TEXT', 'NOT NULL'],
-        ['zip_code', 'INTEGER', 'NOT NULL'],
-        ['store_lat', 'REAL', 'NOT NULL'],
-        ['store_long', 'REAL', 'NOT NULL'],
-        ['county_number', 'INTEGER', 'NOT NULL'],
-        ['county_name', 'TEXT', 'NOT NULL'],
+        ['address', 'TEXT'],
+        ['city', 'TEXT'],
+        ['zip_code', 'INTEGER'],
+        ['store_lat', 'REAL'],
+        ['store_long', 'REAL'],
+        ['county_number', 'INTEGER'],
+        ['county_name', 'TEXT'],
     ]
 
     def parse_col_str(self, str_list):
         table_parameters = ''
         for row in str_list:
-            line = '''{} {} {}, 
-            '''.format(row[0], row[1], row[2])
+            try:
+                line = '''{} {} {}, 
+                '''.format(row[0], row[1], row[2])
+            except IndexError:
+                 line = '''{} {}, 
+                '''.format(row[0], row[1])               
             table_parameters += line
         return table_parameters
 
