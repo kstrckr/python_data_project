@@ -53,7 +53,9 @@ def batch_stores_output(data_input):
     output_complete = {}
     output_incomplete = {}
 
-    for row in data_input:
+    for line in data_input:
+
+        row = line[:11]
 
         if not row[2] in output_complete:
 
@@ -159,15 +161,17 @@ def insert_stores(list_of_stores, database):
 
 def seed_unique_stores():
 
+
+
+    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    raw_data_generator = read_csv(abs_path_of_source_data)
+    all_unique_stores = batch_stores_output(raw_data_generator)
+
     database = setup.IowaLiquorDB('sales_db.db')
 
     stores_table = setup.IowaLiquorStoresTable()
 
     database.db.execute(stores_table.create_table())
-
-    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
-    raw_data_generator = read_csv(abs_path_of_source_data)
-    all_unique_stores = batch_stores_output(raw_data_generator)
 
     insert_stores(all_unique_stores, database)
 
