@@ -55,14 +55,12 @@ def batch_stores_output(data_input):
 
     for line in data_input:
 
-        row = line[:11]
+        row = line[:10]
+        lat, long = parse_lat_long(row[7].replace('\n', ' '))
+        row[7] = lat
+        row.insert(8, long)
 
         if not row[2] in output_complete:
-
-            lat, long = parse_lat_long(row[7].replace('\n', ' '))
-
-            row[7] = lat
-            row.insert(8, long)
 
             for i, data in enumerate(row):
                 row[i] = row[i].replace('"', '')
