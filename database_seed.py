@@ -23,9 +23,9 @@ def read_csv(filename):
         next(data_reader)
         # row = next(data_reader)
         # yield row
-
+        counter = 0
         for row in data_reader:
-            # if row[1][6:] == year:
+            # if row[1][6:] == 2016:
             yield row
             # else:
             #     continue
@@ -47,15 +47,15 @@ def parse_lat_long(data):
 
 
 
-def batch_stores_output():
+def batch_stores_output(data_input):
     '''the for loop in this function checks against some condition, in this case Store Number
     and adds the store details to a dictionary (key = Store Number)'''
-    output = {}
-    raw_data_generator = read_csv(abs_path)
+    output_complete = {}
+    output_incomplete = {}
 
-    for row in raw_data_generator:
+    for row in data_input:
 
-        if not row[2] in output:
+        if not row[2] in output_complete:
 
             lat, long = parse_lat_long(row[7].replace('\n', ' '))
 
@@ -64,13 +64,57 @@ def batch_stores_output():
 
             for i, data in enumerate(row):
                 row[i] = row[i].replace('"', '')
-                if len(data) == 0:
+                if not data:
+                    row[i] = 'NULL'
+                    if row[-1] != 'flagged':
+                        row.append('flagged')
+
+            if row[-1] == 'flagged':
+                
+                if row[2] in output_incomplete:
+                    for i, data in enumerate(row[2:11]):
+                        if output_incomplete[row[2]][i] != row[i]:
+                            output_incomplete[row[2]][i] = row[i]
+
+                output_incomplete[row[2]] = row[2:11]
+                print('flagged row = ', output_incomplete[row[2]])
+
+            else:
+                output_complete[row[2]] = row[2:11]
+                print('parsed row = ', output_complete[row[2]])
+
+    print(len(output_complete), " ", len(output_incomplete))
+
+    for key, value in output_incomplete.items():
+        if not key in output_complete:
+            output_complete[key] = value
+        print(len(output_complete))
+    
+    return output_complete
+
+def single_store_output(data_input, store_number):
+
+    output = {}
+
+    for row in (data_input):
+
+        if row[2] == store_number:
+
+            lat, long = parse_lat_long(row[7].replace('\n', ' '))
+
+            row[7] = lat
+            row.insert(8, long)
+
+            for i, data in enumerate(row):
+                row[i] = row[i].replace('"', '')
+                if not data:
                     row[i] = 'NULL'
 
             output[row[2]] = row[2:11]
             print('parsed row = ', output[row[2]])
-
+    
     return output
+    
 
 def insert_stores(list_of_stores, database):
 
@@ -113,13 +157,32 @@ def insert_stores(list_of_stores, database):
     database.db.commit()
     print('Inserts Committed')
 
-database = setup.IowaLiquorDB('sales_db.db')
+def seed_unique_stores():
 
-stores_table = setup.IowaLiquorStoresTable()
+    database = setup.IowaLiquorDB('sales_db.db')
 
-database.db.execute(stores_table.create_table())
+    stores_table = setup.IowaLiquorStoresTable()
 
-abs_path = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
-all_unique_stores = batch_stores_output()
+    database.db.execute(stores_table.create_table())
 
-insert_stores(all_unique_stores, database)
+    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    raw_data_generator = read_csv(abs_path_of_source_data)
+    all_unique_stores = batch_stores_output(raw_data_generator)
+
+    insert_stores(all_unique_stores, database)
+
+def seed_single_store():
+
+    database = setup.IowaLiquorDB('single_store.db')
+    stores_table = setup.IowaLiquorStoresTable()
+    database.db.execute(stores_table.create_table())
+    
+    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    raw_data_generator = read_csv(abs_path_of_source_data)
+
+    all_single_store_number = single_store_output(raw_data_generator, '5336')
+
+    insert_stores(all_single_store_number, database)
+
+# seed_single_store()
+seed_unique_stores()
