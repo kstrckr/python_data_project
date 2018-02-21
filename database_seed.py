@@ -39,7 +39,7 @@ def parse_lat_long(data):
         match = pattern.match(data)
         lat, long = match.groups()
     except AttributeError:
-        null_string = 'NULL'
+        null_string = ''
         lat = null_string
         long = null_string
     
@@ -53,8 +53,9 @@ def batch_stores_output(data_input):
     output_complete = {}
     output_incomplete = {}
 
+ 
     for line in data_input:
-
+        flagged = False
         row = line[:10]
         lat, long = parse_lat_long(row[7].replace('\n', ' '))
         row[7] = lat
@@ -66,18 +67,24 @@ def batch_stores_output(data_input):
                 row[i] = row[i].replace('"', '')
                 if not data:
                     row[i] = 'NULL'
-                    if row[-1] != 'flagged':
-                        row.append('flagged')
+                    if not flagged:
+                        flagged = True
 
-            if row[-1] == 'flagged':
+            if flagged:
                 
                 if row[2] in output_incomplete:
-                    for i, data in enumerate(row[2:11]):
-                        if output_incomplete[row[2]][i] != row[i]:
-                            output_incomplete[row[2]][i] = row[i]
-
-                output_incomplete[row[2]] = row[2:11]
-                print('flagged row = ', output_incomplete[row[2]])
+                    updated = False
+                    if output_incomplete[row[2]] != row[2:11]:
+                        for i, data in enumerate(row[2:11]):
+                            if output_incomplete[row[2]][i] == 'NULL' and row[i+2] != 'NULL':
+                                output_incomplete[row[2]][i] = row[i+2]
+                                updated = True
+                        if updated:
+                            print('updated row = ', output_incomplete[row[2]])
+                            updated = False
+                else:
+                    output_incomplete[row[2]] = row[2:11]
+                    print('flagged row = ', output_incomplete[row[2]])
 
             else:
                 output_complete[row[2]] = row[2:11]
