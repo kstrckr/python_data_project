@@ -45,7 +45,9 @@ def parse_lat_long(data):
     
     return (lat, long)
 
-
+def format_text_field(data):
+    output = ' '.join([word.capitalize() for word in data.strip().split(' ')])
+    return output
 
 def batch_stores_output(data_input):
     '''the for loop in this function checks against some condition, in this case Store Number
@@ -57,6 +59,10 @@ def batch_stores_output(data_input):
     for line in data_input:
         flagged = False
         row = line[:10]
+
+        row[5] = format_text_field(row[5])
+        row[9] = format_text_field(row[9])
+
         lat, long = parse_lat_long(row[7].replace('\n', ' '))
         row[7] = lat
         row.insert(8, long)
@@ -193,5 +199,7 @@ def seed_single_store():
 
     insert_stores(all_single_store_number, database)
 
-# seed_single_store()
-seed_unique_stores()
+
+if __name__ == "__main__":
+    # seed_single_store()
+    seed_unique_stores()
