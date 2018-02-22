@@ -4,7 +4,6 @@ import re
 
 import db_setup as setup
 
-
 def build_path(filename):
     '''lets you use a relative path to the data, rather than requiring absolute'''
     script_dir = os.path.dirname(__file__)
@@ -54,12 +53,12 @@ def batch_stores_output(data_input):
     and adds the store details to a dictionary (key = Store Number)'''
     output_complete = {}
     output_incomplete = {}
-
  
     for line in data_input:
         flagged = False
         row = line[:10]
 
+        row[3] = format_text_field(row[3])
         row[5] = format_text_field(row[5])
         row[9] = format_text_field(row[9])
 
@@ -95,8 +94,6 @@ def batch_stores_output(data_input):
             else:
                 output_complete[row[2]] = row[2:11]
                 print('parsed row = ', output_complete[row[2]])
-
-    print(len(output_complete), " ", len(output_incomplete))
 
     for key, value in output_incomplete.items():
         if not key in output_complete:
@@ -172,8 +169,6 @@ def insert_stores(list_of_stores, database):
 
 def seed_unique_stores():
 
-
-
     abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
     all_unique_stores = batch_stores_output(raw_data_generator)
@@ -198,7 +193,6 @@ def seed_single_store():
     all_single_store_number = single_store_output(raw_data_generator, '5336')
 
     insert_stores(all_single_store_number, database)
-
 
 if __name__ == "__main__":
     # seed_single_store()
