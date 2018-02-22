@@ -187,7 +187,7 @@ def seed_single_store():
     stores_table = setup.IowaLiquorStoresTable()
     database.db.execute(stores_table.create_table())
     
-    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    abs_path_of_source_data = build_path(r'iowa-liquor-sales\source_Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
 
     all_single_store_number = single_store_output(raw_data_generator, '5336')
