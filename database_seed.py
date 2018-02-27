@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import sqlite3
 
 import db_setup as setup
 
@@ -98,7 +99,6 @@ def batch_stores_output(data_input):
     for key, value in output_incomplete.items():
         if not key in output_complete:
             output_complete[key] = value
-        print(len(output_complete))
     
     return output_complete
 
@@ -159,12 +159,12 @@ def insert_stores(list_of_stores, database):
 
         print(command)
 
-        database.db.execute(command)
+        database.execute(command)
         
         
         print('Inserted {} into database'.format(row['store_name']))
 
-    database.db.commit()
+    database.commit()
     print('Inserts Committed')
 
 def seed_unique_stores():
@@ -173,26 +173,15 @@ def seed_unique_stores():
     raw_data_generator = read_csv(abs_path_of_source_data)
     all_unique_stores = batch_stores_output(raw_data_generator)
 
-    database = setup.IowaLiquorDB('sales_db.db')
+    database = setup.db_connect('sales_db.db')
+    stores_table = setup.StoreSchema()
 
-    stores_table = setup.IowaLiquorStoresTable()
+    print('Creating table: Stores\n', stores_table.create_stores_table())
+    
+    database.execute(stores_table.create_stores_table())
 
-    database.db.execute(stores_table.create_table())
 
     insert_stores(all_unique_stores, database)
-
-def seed_single_store():
-
-    database = setup.IowaLiquorDB('single_store.db')
-    stores_table = setup.IowaLiquorStoresTable()
-    database.db.execute(stores_table.create_table())
-    
-    abs_path_of_source_data = build_path(r'iowa-liquor-sales\source_Iowa_Liquor_Sales.csv')
-    raw_data_generator = read_csv(abs_path_of_source_data)
-
-    all_single_store_number = single_store_output(raw_data_generator, '5336')
-
-    insert_stores(all_single_store_number, database)
 
 if __name__ == "__main__":
     # seed_single_store()
