@@ -36,7 +36,23 @@ class IowaLiquorStoresTable:
     def create_table(self):
         
         return '''CREATE TABLE stores (
-            {})'''.format(self.parse_col_str(self.store_table_list).strip(',\n '))
+            ?)'''.format(self.parse_col_str(self.store_table_list).strip(',\n '))
+
+class StoresTableParamSub:
+
+    store_table_list = [
+        ('store_number', 'INTEGER', 'PRIMARY KEY, ',
+        'store_name', 'TEXT', 'NOT NULL, ',
+        'address', 'TEXT, ',
+        'city', 'TEXT, ',
+        'zip_code', 'INTEGER, ',
+        'store_lat', 'REAL, ',
+        'store_long', 'REAL, ',
+        'county_number', 'INTEGER, ',
+        'county_name', 'TEXT')
+        ]
+
+    
 
 if __name__ == "__main__":
     New_ILS_DB = IowaLiquorDB('sales.db')
