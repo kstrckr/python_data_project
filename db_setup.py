@@ -26,6 +26,7 @@ class StoreSchema:
 class CountySchema:
 
     counties = [
+        (0, None),
         (1, 'Adair'),
         (2, 'Adams'),
         (3, 'Allamakee'),
@@ -129,7 +130,7 @@ class CountySchema:
 
     county_table_cols = '''
         county_id INTEGER PRIMARY KEY,
-        county_name TEXT NOT NULL UNIQUE
+        county_name TEXT UNIQUE
     '''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS counties'

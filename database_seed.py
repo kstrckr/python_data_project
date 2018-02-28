@@ -180,7 +180,7 @@ def seed_unique_stores():
 
     abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
-    all_unique_stores = batch_stores_output(raw_data_generator)
+    # all_unique_stores = batch_stores_output(raw_data_generator)
 
     with setup.db_connect('sales_db.db') as database:
     # database = setup.db_connect('sales_db.db')
@@ -190,7 +190,7 @@ def seed_unique_stores():
     
         database.execute(stores_table.create_stores_table())
 
-        insert_stores(all_unique_stores, database)
+        # insert_stores(all_unique_stores, database)
 
 if __name__ == "__main__":
     # seed_single_store()
