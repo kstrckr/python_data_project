@@ -142,7 +142,7 @@ def insert_stores(list_of_stores, database):
             'county_name': data[8],
         }
 
-        values = '{}, "{}", "{}", "{}", {}, {}, {}, {}, "{}"'.format(
+        values = '{}, "{}", "{}", "{}", {}, {}, {}, {}'.format(
                                 row['store_number'],
                                 row['store_name'],
                                 row['address'],
@@ -150,8 +150,7 @@ def insert_stores(list_of_stores, database):
                                 row['zip_code'],
                                 row['store_lat'],
                                 row['store_long'],
-                                row['county_number'],
-                                row['county_name'])
+                                row['county_number'])
 
         properly_nulled_values = values.replace(r'"NULL"', 'NULL')
 
@@ -167,22 +166,33 @@ def insert_stores(list_of_stores, database):
     database.commit()
     print('Inserts Committed')
 
+def seed_counties():
+    
+    with setup.db_connect('sales_db.db') as database:
+
+        county_table = setup.CountySchema()
+
+        database.execute(county_table.create_counties_table())
+
+        county_table.insert_counties(database)
+
 def seed_unique_stores():
 
     abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
     all_unique_stores = batch_stores_output(raw_data_generator)
 
-    database = setup.db_connect('sales_db.db')
-    stores_table = setup.StoreSchema()
+    with setup.db_connect('sales_db.db') as database:
+    # database = setup.db_connect('sales_db.db')
+        stores_table = setup.StoreSchema()
 
-    print('Creating table: Stores\n', stores_table.create_stores_table())
+        print('Creating table: Stores\n', stores_table.create_stores_table())
     
-    database.execute(stores_table.create_stores_table())
+        database.execute(stores_table.create_stores_table())
 
-
-    insert_stores(all_unique_stores, database)
+        insert_stores(all_unique_stores, database)
 
 if __name__ == "__main__":
     # seed_single_store()
+    seed_counties()
     seed_unique_stores()
