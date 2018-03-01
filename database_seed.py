@@ -46,6 +46,7 @@ def parse_lat_long(data):
     return (lat, long)
 
 def format_text_field(data):
+    '''Cleans up txt fields (address, store name, city) to each word capitalized and striped of apostraphies'''
     output = ' '.join([word.capitalize() for word in data.strip().split(' ')])
     return output
 
@@ -101,31 +102,7 @@ def batch_stores_output(data_input):
             output_complete[key] = value
     
     return output_complete
-
-def single_store_output(data_input, store_number):
-
-    output = {}
-
-    for row in (data_input):
-
-        if row[2] == store_number:
-
-            lat, long = parse_lat_long(row[7].replace('\n', ' '))
-
-            row[7] = lat
-            row.insert(8, long)
-
-            for i, data in enumerate(row):
-                row[i] = row[i].replace('"', '')
-                if not data:
-                    row[i] = 'NULL'
-
-            output[row[2]] = row[2:11]
-            print('parsed row = ', output[row[2]])
-    
-    return output
-    
-
+ 
 def insert_stores(list_of_stores, database):
 
     for store, data in list_of_stores.items():
@@ -139,8 +116,11 @@ def insert_stores(list_of_stores, database):
             'store_lat': data[5],
             'store_long': data[6],
             'county_number': data[7],
-            'county_name': data[8],
+            # 'county_name': data[8],
         }
+
+        if not row['county_number']:
+            row['county_number'] = 0
 
         values = '{}, "{}", "{}", "{}", {}, {}, {}, {}'.format(
                                 row['store_number'],
