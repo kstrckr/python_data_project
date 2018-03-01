@@ -144,8 +144,7 @@ class CountySchema:
         insert_statement = '''INSERT INTO counties(county_id, county_name)
                                 VALUES(?,?)'''
         
-        for county in self.counties:
-            database.execute(insert_statement, county)
+        database.executemany(insert_statement, self.counties)
 
 if __name__ == "__main__":
     New_ILS_DB = db_connect('sales.db')
