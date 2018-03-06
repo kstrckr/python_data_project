@@ -156,23 +156,41 @@ def seed_counties():
 
         county_table.insert_counties(database)
 
-def seed_unique_stores():
+def create_db(db_name):
+    with setup.db_connect(db_name) as database:
+            database = setup.db_connect('sales_db.db')
+            stores_table = setup.StoreSchema()
+
+def create_all_tables(db_name):
+    with setup.db_connect(db_name) as database:
+
+        county_table = setup.CountySchema()
+        database.execute(county_table.create_counties_table())
+        county_table.insert_counties(database)
+
+        categories_table = setup.CategorieSchema()
+        database.execute(categories_table.create_categories_table())
+
+        vendors_table = setup.VendorSchema()
+        database.execute(vendors_table.create_vendors_table())
+
+        items_table = setup.ItemSchema()
+        database.execute(items_table.create_items_table())
+
+        sales_table = setup.SaleSchema()
+        database.execute(sales_table.create_sales_table())
+
+def seed_unique_stores(db_name):
 
     abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
     all_unique_stores = batch_stores_output(raw_data_generator)
 
-    with setup.db_connect('sales_db.db') as database:
-        database = setup.db_connect('sales_db.db')
-        stores_table = setup.StoreSchema()
-
-        print('Creating table: Stores\n', stores_table.create_stores_table())
-    
-        database.execute(stores_table.create_stores_table())
-
+    with setup.db_connect(db_name) as database:
         insert_stores(all_unique_stores, database)
 
 if __name__ == "__main__":
     # seed_single_store()
-    seed_counties()
-    seed_unique_stores()
+    create_db('sales_db.db')
+    create_all_tables('sales_db.db')
+    # seed_unique_stores()

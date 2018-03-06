@@ -9,42 +9,41 @@ class SaleSchema:
         item_inv TEXT NOT NULL PRIMARY KEY,
         sale_date DATE NOT NULL,
         store_number INTEGER NOT NULL,
-        FOREIGN KEY (store_number) REFERENCES stores(store_number),
         category_number INTEGER NOT NULL,
-        FOREIGN KEY (category) REFERENCES categories(category_number),
         vendor_number INTEGER NOT NULL,
-        FOREIGN KEY (vendor_number) REFERENCES vendors(vendor_number),
         item_number INTEGER NOT NULL,
-        FOREIGN KEY (item_number) REFERENCES items(item_number),
         bottles_sold INTEGER NOT NULL,
         sale_dollars INTEGER NOT NULL,
         volume_sold_liters INTEGER NOT NULL,
-        volume_sold_gallons INTEGER NOT NULL
-    '''
+        volume_sold_gallons INTEGER NOT NULL,
+        FOREIGN KEY (store_number) REFERENCES stores(store_number),
+        FOREIGN KEY (category_number) REFERENCES categories(category_number),
+        FOREIGN KEY (vendor_number) REFERENCES vendors(vendor_number),
+        FOREIGN KEY (item_number) REFERENCES items(item_number)'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS sales'
 
     def create_sales_table(self):
-        full_statement = self.table_statement + '(' + self.sales_table_cols + ');'
+        full_statement = self.table_statement + '(' + self.sales_table_cols + ')'
+        print(full_statement)
         return full_statement
 
 class CategorieSchema:
     categories_table_cols = '''
         category_number INTEGER NOT NULL PRIMARY KEY,
-        category_name TEXT NOT NULL
-    '''
+        category_name TEXT NOT NULL'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS categories'
 
     def create_categories_table(self):
-        full_statement = self.table_statement + '(' + self.categories_table_cols + ');'
+        full_statement = self.table_statement + '(' + self.categories_table_cols + ')'
+        print(full_statement)
         return full_statement
 
 class VendorSchema:
     vendors_table_cols = '''
         vendor_number INTEGER NOT NULL PRIMARY KEY,
-        vendor_name TEXT NOT NULL,
-    '''
+        vendor_name TEXT NOT NULL'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS vendors'
 
@@ -59,8 +58,7 @@ class ItemSchema:
         pack_qty INTEGER NOT NULL,
         bottle_volume_ml INTEGER NOT NULL,
         state_bottle_cost INTEGER NOT NULL,
-        state_bottle_retail INTEGER NOT NULL
-    '''
+        state_bottle_retail INTEGER NOT NULL'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS items'
 
@@ -194,13 +192,13 @@ class CountySchema:
 
     county_table_cols = '''
         county_id INTEGER NOT NULL PRIMARY KEY,
-        county_name TEXT UNIQUE
-    '''
+        county_name TEXT UNIQUE'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS counties'
 
     def create_counties_table(self):
         full_statement = self.table_statement + '(' + self.county_table_cols + ')'
+        print(full_statement)
         return full_statement
 
     def insert_counties(self, database):
