@@ -4,10 +4,74 @@ def db_connect(db_name):
         con = sqlite3.connect(db_name)
         return con
 
+class SaleSchema:
+    sales_table_cols = '''
+        item_inv TEXT NOT NULL PRIMARY KEY,
+        sale_date DATE NOT NULL,
+        store_number INTEGER NOT NULL,
+        FOREIGN KEY (store_number) REFERENCES stores(store_number),
+        category_number INTEGER NOT NULL,
+        FOREIGN KEY (category) REFERENCES categories(category_number),
+        vendor_number INTEGER NOT NULL,
+        FOREIGN KEY (vendor_number) REFERENCES vendors(vendor_number),
+        item_number INTEGER NOT NULL,
+        FOREIGN KEY (item_number) REFERENCES items(item_number),
+        bottles_sold INTEGER NOT NULL,
+        sale_dollars INTEGER NOT NULL,
+        volume_sold_liters INTEGER NOT NULL,
+        volume_sold_gallons INTEGER NOT NULL
+    '''
+
+    table_statement = 'CREATE TABLE IF NOT EXISTS sales'
+
+    def create_sales_table(self):
+        full_statement = self.table_statement + '(' + self.sales_table_cols + ');'
+        return full_statement
+
+class CategorieSchema:
+    categories_table_cols = '''
+        category_number INTEGER NOT NULL PRIMARY KEY,
+        category_name TEXT NOT NULL
+    '''
+
+    table_statement = 'CREATE TABLE IF NOT EXISTS categories'
+
+    def create_categories_table(self):
+        full_statement = self.table_statement + '(' + self.categories_table_cols + ');'
+        return full_statement
+
+class VendorSchema:
+    vendors_table_cols = '''
+        vendor_number INTEGER NOT NULL PRIMARY KEY,
+        vendor_name TEXT NOT NULL,
+    '''
+
+    table_statement = 'CREATE TABLE IF NOT EXISTS vendors'
+
+    def create_vendors_table(self):
+        full_statement = self.table_statement + '(' + self.vendors_table_cols + ');'
+        return full_statement
+
+class ItemSchema:
+    items_table_cols = '''
+        item_number INTEGER NOT NULL PRIMARY KEY,
+        item_description TEXT NOT NULL,
+        pack_qty INTEGER NOT NULL,
+        bottle_volume_ml INTEGER NOT NULL,
+        state_bottle_cost INTEGER NOT NULL,
+        state_bottle_retail INTEGER NOT NULL
+    '''
+
+    table_statement = 'CREATE TABLE IF NOT EXISTS items'
+
+    def create_items_table(self):
+        full_statement = self.table_statement + '(' + self.items_table_cols + ');'
+        return full_statement
+
 class StoreSchema:
 
     store_table_cols = '''
-        store_number INTEGER PRIMARY KEY, 
+        store_number INTEGER NOT NULL PRIMARY KEY, 
         store_name TEXT NOT NULL, 
         address TEXT, 
         city TEXT,
@@ -20,7 +84,7 @@ class StoreSchema:
     table_statement = 'CREATE TABLE IF NOT EXISTS stores'
 
     def create_stores_table(self):
-        full_statement = self.table_statement + '(' + self.store_table_cols + ')'
+        full_statement = self.table_statement + '(' + self.store_table_cols + ');'
         return full_statement
 
 class CountySchema:
@@ -129,7 +193,7 @@ class CountySchema:
     ]
 
     county_table_cols = '''
-        county_id INTEGER PRIMARY KEY,
+        county_id INTEGER NOT NULL PRIMARY KEY,
         county_name TEXT UNIQUE
     '''
 
