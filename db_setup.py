@@ -25,7 +25,6 @@ class SaleSchema:
 
     def create_sales_table(self):
         full_statement = self.table_statement + '(' + self.sales_table_cols + ')'
-        print(full_statement)
         return full_statement
 
 class CategorieSchema:
@@ -37,7 +36,6 @@ class CategorieSchema:
 
     def create_categories_table(self):
         full_statement = self.table_statement + '(' + self.categories_table_cols + ')'
-        print(full_statement)
         return full_statement
 
 class VendorSchema:
@@ -198,7 +196,6 @@ class CountySchema:
 
     def create_counties_table(self):
         full_statement = self.table_statement + '(' + self.county_table_cols + ')'
-        print(full_statement)
         return full_statement
 
     def insert_counties(self, database):

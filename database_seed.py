@@ -87,15 +87,15 @@ def batch_stores_output(data_input):
                                 output_incomplete[row[2]][i] = row[i+2]
                                 updated = True
                         if updated:
-                            print('updated row = ', output_incomplete[row[2]])
+                            # print('updated row = ', output_incomplete[row[2]])
                             updated = False
                 else:
                     output_incomplete[row[2]] = row[2:11]
-                    print('flagged row = ', output_incomplete[row[2]])
+                    # print('flagged row = ', output_incomplete[row[2]])
 
             else:
                 output_complete[row[2]] = row[2:11]
-                print('parsed row = ', output_complete[row[2]])
+                # print('parsed row = ', output_complete[row[2]])
 
     for key, value in output_incomplete.items():
         if not key in output_complete:
@@ -139,9 +139,7 @@ def insert_stores(list_of_stores, database):
         print(command)
 
         database.execute(command)
-        
-        
-        print('Inserted {} into database'.format(row['store_name']))
+        # print('Inserted {} into database'.format(row['store_name']))
 
     database.commit()
     print('Inserts Committed')
@@ -151,15 +149,8 @@ def seed_counties():
     with setup.db_connect('sales_db.db') as database:
 
         county_table = setup.CountySchema()
-
         database.execute(county_table.create_counties_table())
-
         county_table.insert_counties(database)
-
-def create_db(db_name):
-    with setup.db_connect(db_name) as database:
-            database = setup.db_connect('sales_db.db')
-            stores_table = setup.StoreSchema()
 
 def create_all_tables(db_name):
     with setup.db_connect(db_name) as database:
@@ -167,6 +158,9 @@ def create_all_tables(db_name):
         county_table = setup.CountySchema()
         database.execute(county_table.create_counties_table())
         county_table.insert_counties(database)
+
+        stores_table = setup.StoreSchema()
+        database.execute(stores_table.create_stores_table())
 
         categories_table = setup.CategorieSchema()
         database.execute(categories_table.create_categories_table())
@@ -191,6 +185,7 @@ def seed_unique_stores(db_name):
 
 if __name__ == "__main__":
     # seed_single_store()
-    create_db('sales_db.db')
-    create_all_tables('sales_db.db')
-    # seed_unique_stores()
+    target_db = 'sales_db.db'
+    # create_db(target_db)
+    create_all_tables(target_db)
+    seed_unique_stores(target_db)
