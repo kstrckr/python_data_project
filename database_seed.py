@@ -5,6 +5,8 @@ import sqlite3
 
 import db_setup as setup
 
+clear = lambda: os.system('cls')
+
 def build_path(filename):
     '''lets you use a relative path to the data, rather than requiring absolute'''
     script_dir = os.path.dirname(__file__)
@@ -21,8 +23,6 @@ def read_csv(filename):
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
-        # row = next(data_reader)
-        # yield row
         # counter = 0
         for row in data_reader:
             # if row[1][6:] == 2016:
@@ -47,8 +47,22 @@ def parse_lat_long(data):
 
 def format_text_field(data):
     '''Cleans up txt fields (address, store name, city) to each word capitalized and striped of apostraphies'''
-    output = ' '.join([word.capitalize() for word in data.strip().split(' ')])
-    return output
+    each_word_upper_str = ' '.join([word.capitalize() for word in data.strip().split(' ')])
+    return each_word_upper_str
+
+def format_money_field(data):
+
+    if data and type(data) == str:
+        
+        if data[0] == '$':
+            pennies = data[1:].replace('.', '')
+        else:
+            pennies = data.replace('.', '')
+        
+        return int(pennies)
+
+    else:
+        return data
 
 def batch_stores_output(data_input):
     '''the for loop in this function checks against some condition, in this case Store Number
@@ -56,13 +70,12 @@ def batch_stores_output(data_input):
     output_complete = {}
     output_incomplete = {}
  
-    for line in data_input:
+    for row in data_input:
         flagged = False
-        row = line[:10]
+        # row = line[:10]
 
         row[3] = format_text_field(row[3])
         row[5] = format_text_field(row[5])
-        row[9] = format_text_field(row[9])
 
         lat, long = parse_lat_long(row[7].replace('\n', ' '))
         row[7] = lat
@@ -102,7 +115,10 @@ def batch_stores_output(data_input):
             output_complete[key] = value
     
     return output_complete
- 
+
+def batch_category_output(data_input):
+    pass
+
 def insert_stores(list_of_stores, database):
 
     for store, data in list_of_stores.items():
@@ -183,9 +199,64 @@ def seed_unique_stores(db_name):
     with setup.db_connect(db_name) as database:
         insert_stores(all_unique_stores, database)
 
+def parse_a_row(row):
+
+    row[3] = format_text_field(row[3])
+    row[5] = format_text_field(row[5])
+    row[11] = format_text_field(row[11])
+    row[13] = format_text_field(row[13])
+    row[15] = format_text_field(row[15])
+    row[18] = format_money_field(row[18])
+    row[19] = format_money_field(row[19])
+    row[21] = format_money_field(row[21])
+
+    return row
+
+def parse_seed_data(db_name, data_input):
+    
+    store_data_complete = {}
+    store_data_incomplete = {}
+
+    categories = {}
+    vendors = {}
+    items = {}
+
+    sales = {}
+
+    for unparsed_row in data_input:
+
+        if not unparsed_row[10] in categories:
+            row = parse_a_row(unparsed_row)
+            categories[row[10]] = row[10:12]
+
+        if not unparsed_row[12] in vendors:
+            row = parse_a_row(unparsed_row)
+            vendors[row[12]] = row[12:14]
+
+        if not unparsed_row[14] in items:
+            row = parse_a_row(unparsed_row)
+            items[row[14]] = row[14:20]
+
+    print('''categories = {}\nvendors = {}\nitems = {}'''.format(len(categories), len(vendors), len(items)))
+
+    return categories
+
+
+        
+
+    
+
 if __name__ == "__main__":
     # seed_single_store()
     target_db = 'sales_db.db'
     # create_db(target_db)
     create_all_tables(target_db)
-    seed_unique_stores(target_db)
+
+    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    raw_data_generator = read_csv(abs_path_of_source_data)
+
+    categories = parse_seed_data(target_db, raw_data_generator)
+
+
+
+    # seed_unique_stores(target_db)

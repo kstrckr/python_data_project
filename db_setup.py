@@ -7,10 +7,10 @@ def db_connect(db_name):
 class SaleSchema:
     sales_table_cols = '''
         item_inv TEXT NOT NULL PRIMARY KEY,
-        sale_date DATE NOT NULL,
+        sale_date TEXT NOT NULL,
         store_number INTEGER NOT NULL,
-        category_number INTEGER NOT NULL,
-        vendor_number INTEGER NOT NULL,
+        category_number INTEGER,
+        vendor_number INTEGER,
         item_number INTEGER NOT NULL,
         bottles_sold INTEGER NOT NULL,
         sale_dollars INTEGER NOT NULL,
@@ -200,10 +200,14 @@ class CountySchema:
 
     def insert_counties(self, database):
 
-        insert_statement = '''INSERT INTO counties(county_id, county_name)
+        try:
+            insert_statement = '''INSERT INTO counties(county_id, county_name)
                                 VALUES(?,?)'''
         
-        database.executemany(insert_statement, self.counties)
+            database.executemany(insert_statement, self.counties)
+        except sqlite3.IntegrityError:
+            print('Counties already seeded')
+            return
 
 if __name__ == "__main__":
     New_ILS_DB = db_connect('sales.db')
