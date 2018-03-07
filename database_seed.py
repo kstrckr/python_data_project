@@ -23,7 +23,7 @@ def read_csv(filename):
         next(data_reader)
         # row = next(data_reader)
         # yield row
-        counter = 0
+        # counter = 0
         for row in data_reader:
             # if row[1][6:] == 2016:
             yield row
