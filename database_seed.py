@@ -71,7 +71,7 @@ def batch_stores_output(data_input):
     output_incomplete = {}
  
     for row in data_input:
-        flagged = False
+        store_flagged = False
         # row = line[:10]
 
         row[3] = format_text_field(row[3])
@@ -87,10 +87,10 @@ def batch_stores_output(data_input):
                 row[i] = row[i].replace('"', '')
                 if not data:
                     row[i] = 'NULL'
-                    if not flagged:
-                        flagged = True
+                    if not store_flagged:
+                        store_flagged = True
 
-            if flagged:
+            if store_flagged:
                 
                 if row[2] in output_incomplete:
                     updated = False
@@ -104,7 +104,7 @@ def batch_stores_output(data_input):
                             updated = False
                 else:
                     output_incomplete[row[2]] = row[2:11]
-                    # print('flagged row = ', output_incomplete[row[2]])
+                    # print('store_flagged row = ', output_incomplete[row[2]])
 
             else:
                 output_complete[row[2]] = row[2:11]
@@ -225,15 +225,15 @@ def parse_seed_data(db_name, data_input):
 
     for unparsed_row in data_input:
 
-        if not unparsed_row[10] in categories:
+        if unparsed_row[10] and not unparsed_row[10] in categories:
             row = parse_a_row(unparsed_row)
             categories[row[10]] = row[10:12]
 
-        if not unparsed_row[12] in vendors:
+        if unparsed_row[12] and not unparsed_row[12] in vendors:
             row = parse_a_row(unparsed_row)
             vendors[row[12]] = row[12:14]
 
-        if not unparsed_row[14] in items:
+        if unparsed_row[14] and not unparsed_row[14] in items:
             row = parse_a_row(unparsed_row)
             items[row[14]] = row[14:20]
 
