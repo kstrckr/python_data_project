@@ -7,7 +7,7 @@ def db_connect(db_name):
 class SaleSchema:
     sales_table_cols = '''
         item_inv TEXT NOT NULL PRIMARY KEY,
-        sale_date TEXT NOT NULL,
+        sale_date DATE NOT NULL,
         store_number INTEGER NOT NULL,
         category_number INTEGER,
         vendor_number INTEGER,
@@ -15,7 +15,6 @@ class SaleSchema:
         bottles_sold INTEGER NOT NULL,
         sale_dollars INTEGER NOT NULL,
         volume_sold_liters INTEGER NOT NULL,
-        volume_sold_gallons INTEGER NOT NULL,
         FOREIGN KEY (store_number) REFERENCES stores(store_number),
         FOREIGN KEY (category_number) REFERENCES categories(category_number),
         FOREIGN KEY (vendor_number) REFERENCES vendors(vendor_number),

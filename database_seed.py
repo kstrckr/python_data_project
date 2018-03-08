@@ -1,4 +1,5 @@
 import csv
+import datetime
 import os
 import re
 import sqlite3
@@ -212,6 +213,33 @@ def parse_a_row(row):
 
     return row
 
+def parse_a_sale(row):
+    individual_sale = {
+        'item_inv': row[0],
+        'sale_date': datetime.datetime.strptime(row[1], '%m/%d/%Y').strftime('%Y-%m-%d'),
+        'store_number': row[2],
+        'category_number': row[8],
+        'vendor_number': row[12],
+        'item_number': row[14],
+        'bottles_sold': row[20],
+        'sale_dollars': format_money_field(row[21]),
+        'volume_sold_liters': row[22]
+    }
+
+    sale_row = [
+        individual_sale['item_inv'],
+        individual_sale['sale_date'],
+        individual_sale['store_number'],
+        individual_sale['category_number'],
+        individual_sale['vendor_number'],
+        individual_sale['item_number'],
+        individual_sale['bottles_sold'],
+        individual_sale['sale_dollars'],
+        individual_sale['volume_sold_liters'],
+    ]
+
+    return sale_row
+
 def parse_seed_data(db_name, data_input):
     
     store_data_complete = {}
@@ -236,6 +264,10 @@ def parse_seed_data(db_name, data_input):
         if unparsed_row[14] and not unparsed_row[14] in items:
             row = parse_a_row(unparsed_row)
             items[row[14]] = row[14:20]
+
+        if unparsed_row[0] and not unparsed_row[0] in sales:
+            row = parse_a_sale(unparsed_row)
+            sales[row[0]] = row
 
     print('''categories = {}\nvendors = {}\nitems = {}'''.format(len(categories), len(vendors), len(items)))
 
