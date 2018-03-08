@@ -214,17 +214,22 @@ def parse_a_row(row):
     return row
 
 def parse_a_sale(row):
+
+    if not row[8]:
+        row[8] = 0
+        
     individual_sale = {
         'item_inv': row[0],
         'sale_date': datetime.datetime.strptime(row[1], '%m/%d/%Y').strftime('%Y-%m-%d'),
-        'store_number': row[2],
-        'category_number': row[8],
-        'vendor_number': row[12],
-        'item_number': row[14],
-        'bottles_sold': row[20],
+        'store_number': int(row[2]),
+        'category_number': int(row[8]),
+        'vendor_number': int(row[12]),
+        'item_number': int(row[14]),
+        'bottles_sold': int(row[20]),
         'sale_dollars': format_money_field(row[21]),
-        'volume_sold_liters': row[22]
+        'volume_sold_ml': int(float(row[22])*1000)
     }
+
 
     sale_row = [
         individual_sale['item_inv'],
@@ -235,7 +240,7 @@ def parse_a_sale(row):
         individual_sale['item_number'],
         individual_sale['bottles_sold'],
         individual_sale['sale_dollars'],
-        individual_sale['volume_sold_liters'],
+        individual_sale['volume_sold_ml'],
     ]
 
     return sale_row
