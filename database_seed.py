@@ -1,5 +1,6 @@
 import csv
 import datetime
+import time
 import os
 import re
 import sqlite3
@@ -201,22 +202,28 @@ def seed_unique_stores(db_name):
         insert_stores(all_unique_stores, database)
 
 def parse_a_row(row):
+    output_row = list(row)
+    output_row[3] = format_text_field(row[3])
+    output_row[5] = format_text_field(row[5])
+    output_row[11] = format_text_field(row[11])
+    output_row[13] = format_text_field(row[13])
+    output_row[15] = format_text_field(row[15])
+    output_row[18] = format_money_field(row[18])
+    output_row[19] = format_money_field(row[19])
+    output_row[21] = format_money_field(row[21])
 
-    row[3] = format_text_field(row[3])
-    row[5] = format_text_field(row[5])
-    row[11] = format_text_field(row[11])
-    row[13] = format_text_field(row[13])
-    row[15] = format_text_field(row[15])
-    row[18] = format_money_field(row[18])
-    row[19] = format_money_field(row[19])
-    row[21] = format_money_field(row[21])
-
-    return row
+    return output_row
 
 def parse_a_sale(row):
 
+    if not row[2]:
+        row[2] = 0
     if not row[8]:
         row[8] = 0
+    if not row[12]:
+        row[12] = 0
+    if not row[14]:
+        row[14] = 0
 
     individual_sale = {
         'item_inv': row[0],
@@ -229,7 +236,6 @@ def parse_a_sale(row):
         'sale_dollars': format_money_field(row[21]),
         'volume_sold_ml': int(float(row[22])*1000)
     }
-
 
     # sale_row = [
     #     individual_sale['item_inv'],
@@ -244,6 +250,51 @@ def parse_a_sale(row):
     # ]
 
     return individual_sale
+
+def parse_a_store(row):
+    row[3] = format_text_field(row[3])
+    row[5] = format_text_field(row[5])
+
+    lat, long = parse_lat_long(row[7].replace('\n', ' '))
+    row[7] = lat
+    row.insert(8, long)
+
+    return row
+
+def sort_a_store(row, complete_dicts, incomplete_dicts):
+    store_flagged = False
+
+    if not row[2] in incomplete_dicts:
+
+        for i, data in enumerate(row):
+            if type(row[i]) == str:
+                row[i] = row[i].replace('"', '')
+            if not data:
+                row[i] = 'NULL'
+                if not store_flagged:
+                    store_flagged = True
+
+        if store_flagged:
+            
+            if row[2] in incomplete_dicts:
+                updated = False
+                if incomplete_dicts[row[2]] != row[2:11]:
+                    for i, data in enumerate(row[2:11]):
+                        if incomplete_dicts[row[2]][i] == 'NULL' and row[i+2] != 'NULL':
+                            incomplete_dicts[row[2]][i] = row[i+2]
+                            updated = True
+                    if updated:
+                        print('updated row = ', incomplete_dicts[row[2]])
+                        updated = False
+            else:
+                incomplete_dicts[row[2]] = row[2:11]
+                print('store_flagged row = ', incomplete_dicts[row[2]])
+
+        else:
+            incomplete_dicts[row[2]] = row[2:11]
+            print('parsed row = ', complete_dicts[row[2]])
+
+
 
 def parse_seed_data(db_name, data_input):
     
@@ -276,9 +327,17 @@ def parse_seed_data(db_name, data_input):
         else:
             print('DUPLICATE INVOICE NUMBER')
 
-    print('''categories = {}\nvendors = {}\nitems = {}'''.format(len(categories), len(vendors), len(items)))
+        if unparsed_row[2]:
+            row = parse_a_store(unparsed_row)
+            sort_a_store(row, store_data_complete, store_data_incomplete)
 
-    return categories
+    for key, value in store_data_incomplete.items():
+        if not key in store_data_incomplete:
+            store_data_complete[key] = value
+
+    print('''categories = {}\nvendors = {}\nitems = {}\nsales = {}\nstores = {}'''.format(len(categories), len(vendors), len(items), len(sales), len(store_data_complete)))
+
+    return categories, vendors, items, sales, store_data_complete
 
 
         
@@ -287,6 +346,8 @@ def parse_seed_data(db_name, data_input):
 
 if __name__ == "__main__":
     # seed_single_store()
+    start = time.time()
+    print(start)
     target_db = 'sales_db.db'
     # create_db(target_db)
     create_all_tables(target_db)
@@ -295,7 +356,9 @@ if __name__ == "__main__":
     raw_data_generator = read_csv(abs_path_of_source_data)
 
     categories = parse_seed_data(target_db, raw_data_generator)
+    end = time.time()
 
+    print(end - start)
 
 
     # seed_unique_stores(target_db)
