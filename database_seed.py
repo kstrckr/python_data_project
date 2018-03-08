@@ -352,7 +352,7 @@ if __name__ == "__main__":
     # create_db(target_db)
     create_all_tables(target_db)
 
-    abs_path_of_source_data = build_path(r'iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    abs_path_of_source_data = build_path(r'\input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv(abs_path_of_source_data)
 
     categories = parse_seed_data(target_db, raw_data_generator)
