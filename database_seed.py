@@ -217,7 +217,7 @@ def parse_a_sale(row):
 
     if not row[8]:
         row[8] = 0
-        
+
     individual_sale = {
         'item_inv': row[0],
         'sale_date': datetime.datetime.strptime(row[1], '%m/%d/%Y').strftime('%Y-%m-%d'),
@@ -231,19 +231,19 @@ def parse_a_sale(row):
     }
 
 
-    sale_row = [
-        individual_sale['item_inv'],
-        individual_sale['sale_date'],
-        individual_sale['store_number'],
-        individual_sale['category_number'],
-        individual_sale['vendor_number'],
-        individual_sale['item_number'],
-        individual_sale['bottles_sold'],
-        individual_sale['sale_dollars'],
-        individual_sale['volume_sold_ml'],
-    ]
+    # sale_row = [
+    #     individual_sale['item_inv'],
+    #     individual_sale['sale_date'],
+    #     individual_sale['store_number'],
+    #     individual_sale['category_number'],
+    #     individual_sale['vendor_number'],
+    #     individual_sale['item_number'],
+    #     individual_sale['bottles_sold'],
+    #     individual_sale['sale_dollars'],
+    #     individual_sale['volume_sold_ml'],
+    # ]
 
-    return sale_row
+    return individual_sale
 
 def parse_seed_data(db_name, data_input):
     
@@ -272,7 +272,9 @@ def parse_seed_data(db_name, data_input):
 
         if unparsed_row[0] and not unparsed_row[0] in sales:
             row = parse_a_sale(unparsed_row)
-            sales[row[0]] = row
+            sales[unparsed_row[0]] = row
+        else:
+            print('DUPLICATE INVOICE NUMBER')
 
     print('''categories = {}\nvendors = {}\nitems = {}'''.format(len(categories), len(vendors), len(items)))
 
