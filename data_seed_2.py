@@ -25,7 +25,8 @@ def read_csv_generator(filename):
     with open(filename, 'r') as raw_data:
         data_reader = csv.reader(raw_data)
 
-        next(data_reader)
+        for i in range(7000000):
+            next(data_reader)
         # counter = 0
         for row in data_reader:
             # if row[1][6:] == 2016:
@@ -33,6 +34,8 @@ def read_csv_generator(filename):
             # else:
             #     continue
     print('Generator Complete')
+
+
 
 def read_csv_batch(filename, qty):
 
@@ -63,14 +66,18 @@ def format_lat_long(field):
     inside parens and comma seperated and returns a tuple for lat, long'''
     
     if field:
+        pattern = re.compile(r'^.*\((?P<lat>-?\d+\.\d+), (?P<long>-?\d+\.\d+).*$')
+        match = pattern.match(field.replace('\n', ' '))
         try:
-            pattern = re.compile(r'^.*\((?P<lat>-?\d+\.\d+), (?P<long>-?\d+\.\d+).*$')
-            match = pattern.match(field.replace('\n', ' '))
-            lat, long = match.groups()
-            return float(lat), float(long)
-        except (AttributeError, TypeError):
-            lat, long = (None, None)
-            return (lat, long)
+            lat = float(match.group('lat'))
+            long = float(match.group('long'))
+        except:
+            lat = None
+            long = None
+    else:
+        lat = None
+        long = None
+    return (lat, long)
 
 def format_liter_to_ml(field):
     if field:
@@ -109,13 +116,12 @@ def format_zip_code(field):
     else:
         return None
 
-
 def parse_a_row(row):
     '''parse an entire row from the raw csv'''
-#----   sale fields (1)
+    #----   sale fields (1)
     row[0] = format_text_field(row[0])      # invoice num
     row[1] = format_date_field(row[1])      # date
-#----   store fields
+    #----   store fields
     row[2] = format_int_field(row[2])       # store number
     row[3] = format_text_field(row[3])      # store name
     row[4] = format_text_field(row[4])      # address
@@ -127,20 +133,20 @@ def parse_a_row(row):
     row.insert(8, long)                     # long
     row[9] = format_int_field(row[9])       # county number
                                             # county name is pre-seeded during table creation
-#----   cateogry fields
+    #----   cateogry fields
     row[11] = format_int_field(row[11])     # category number
     row[12] = format_text_field(row[12])    # category name
-#----   vendor fields
+    #----   vendor fields
     row[13] = format_int_field(row[13])     # vendor number
     row[14] = format_text_field(row[14])    # vendor name
-#----   item fields
+    #----   item fields
     row[15] = format_int_field(row[15])     # item number
     row[16] = format_text_field(row[16])    # item description
     row[17] = format_int_field(row[17])     # pack qty
     row[18] = format_int_field(row[18])     # bottle volume ml
     row[19] = format_money_field(row[19])   # state wholesale cost
     row[20] = format_money_field(row[20])   # state retail cost
-#----   sale fields (2)
+    #----   sale fields (2)
     row[21] = format_int_field(row[21])     # quantity sold
     row[22] = format_money_field(row[22])   # sale ammount
     row[23] = format_liter_to_ml(row[23])   # sale volume in ml
@@ -150,7 +156,7 @@ def parse_a_row(row):
 def parse_a_selective_row(row, categories, items, sales, stores, vendors):
     '''parse an entire row from the raw csv'''
 
-#----   store fields
+    #----   store fields
     if not row[2] in stores:
         row[2] = format_int_field(row[2])       # store number
         row[3] = format_text_field(row[3])      # store name
@@ -164,19 +170,19 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[9] = format_int_field(row[9])       # county number
                                             # county name is pre-seeded during table creation
         stores[row[2]] = row[2:10]
-#----   cateogry fields
+    #----   cateogry fields
     if not row[11] in categories:
         row[11] = format_int_field(row[11])     # category number
         row[12] = format_text_field(row[12])    # category name
 
         categories[row[11]] = [row[11:13]]
-#----   vendor fields
+    #----   vendor fields
     if not row[13] in vendors:
         row[13] = format_int_field(row[13])     # vendor number
         row[14] = format_text_field(row[14])    # vendor name
 
         vendors[row[13]] = row[13:15]
-#----   item fields
+    #----   item fields
     if not row[15] in items:
         row[15] = format_int_field(row[15])     # item number
         row[16] = format_text_field(row[16])    # item description
@@ -196,7 +202,6 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[22] = format_money_field(row[22])   # sale ammount
         row[23] = format_liter_to_ml(row[23])   # sale volume in ml
         sales[row[0]] = row[:2].append(row[21:24])
-
 
 def parse_single_row(raw_csv_generator):
     counter = 0
@@ -260,6 +265,7 @@ def build_virtual_db(raw_row_generator):
 
     count = 0
     for row in raw_row_generator:
+        print(row)
         parse_a_selective_row(row, categories, items, sales, stores, vendors)
     return (categories, items, sales, stores, vendors)
 
@@ -278,7 +284,7 @@ if __name__ == '__main__':
     counter = 3000000
     # many_rows = parse_x_rows(raw_data_generator, counter)
 
-
+    # fail_row = [['INV-00090800001', '09/01/2016', '4725', "Casey's General Store #1548 / Ankeny", '', '', '', '', '', '', '1012100', 'Canadian Whiskies', '260', 'DIAGEO AMERICAS', '11296', 'Crown Royal', '12', '750', '$15.07', '$22.61', '10', '$22.61', '7.50', '1.98']]
     categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
     # counter, full_year = parse_a_year(raw_data_generator, '2016')
 
