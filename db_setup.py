@@ -9,16 +9,13 @@ class SaleSchema:
         sale_id TEXT NOT NULL PRIMARY KEY,
         sale_date DATE NOT NULL,
         store_id INTEGER NOT NULL,
-        category_id INTEGER,
-        vendor_id INTEGER,
         item_id INTEGER NOT NULL,
         bottles_sold INTEGER NOT NULL,
         sale_value INTEGER,
         sale_vol_ml INTEGER NOT NULL,
         FOREIGN KEY (store_id) REFERENCES stores(store_number),
-        FOREIGN KEY (category_id) REFERENCES categories(category_number),
-        FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_number),
-        FOREIGN KEY (item_id) REFERENCES items(item_number)'''
+        FOREIGN KEY (item_id) REFERENCES items(item_number)
+        '''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS sales'
 
@@ -40,7 +37,7 @@ class CategorieSchema:
 class VendorSchema:
     vendors_table_cols = '''
         vendor_id INTEGER NOT NULL PRIMARY KEY,
-        vendor_name TEXT NOT NULL'''
+        vendor_name TEXT'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS vendors'
 
@@ -51,11 +48,16 @@ class VendorSchema:
 class ItemSchema:
     items_table_cols = '''
         item_id INTEGER NOT NULL PRIMARY KEY,
+        category_id INTEGER,
+        vendor_id INTEGER,
         item_description TEXT NOT NULL,
         pack_qty INTEGER NOT NULL,
         bottle_volume_ml INTEGER NOT NULL,
         state_wholesale INTEGER NOT NULL,
-        state_retail INTEGER NOT NULL'''
+        state_retail INTEGER NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES categories(category_number),
+        FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_number)
+        '''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS items'
 

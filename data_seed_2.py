@@ -162,8 +162,6 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[1] = format_date_field(row[1])      # date
 
         row[2] = format_int_field(row[2])       # store number FK
-        row[11] = format_int_field(row[11])     # category number FK
-        row[13] = format_int_field(row[13])     # vendor number FK
         row[15] = format_int_field(row[15])     # item number FK
         #----   sale fields (2)
         row[21] = format_int_field(row[21])     # quantity sold
@@ -181,7 +179,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'sale_vol_ml': row[23]
         # }
 
-        sales[row[0]] = (row[0], row[1], row[2], row[11], row[13], row[15], row[21], row[22], row[23])
+        sales[row[0]] = (row[0], row[1], row[2], row[15], row[21], row[22], row[23])
 
     #----   store fields
     if not row[2] in stores:
@@ -210,7 +208,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         stores[row[2]] = (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
     #----   cateogry fields
     if not row[11] in categories:
-        # row[11] = format_int_field(row[11])     # category number
+        row[11] = format_int_field(row[11])     # category number
         row[12] = format_text_field(row[12])    # category name
 
         # categories[row[11]] = {
@@ -219,9 +217,10 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         # }
 
         categories[row[11]] = (row[11], row[12])
+    
     #----   vendor fields
     if not row[13] in vendors:
-        # row[13] = format_int_field(row[13])     # vendor number
+        row[13] = format_int_field(row[13])     # vendor number
         row[14] = format_text_field(row[14])    # vendor name
 
         # vendors[row[13]] = {
@@ -233,6 +232,8 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
     #----   item fields
     if not row[15] in items:
         # row[15] = format_int_field(row[15])     # item number
+        row[11] = format_int_field(row[11])     # category number FK
+        row[13] = format_int_field(row[13])     # vendor number FK
         row[16] = format_text_field(row[16])    # item description
         row[17] = format_int_field(row[17])     # pack qty
         row[18] = format_int_field(row[18])     # bottle volume ml
@@ -241,6 +242,8 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
 
         # items[row[15]] = {
         #     'item_number': row[15],
+        #     'category_number': row[11],
+        #     'vendor_number': row[13],
         #     'item_description': row[16],
         #     'pack_qty': row[17],
         #     'bottle_vol_ml': row[18],
@@ -248,7 +251,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'state_retail_cost': row[20]
         # }
 
-        items[row[15]] = (row[15], row[16], row[17], row[18], row[19], row[20])
+        items[row[15]] = (row[15], row[11], row[13], row[16], row[17], row[18], row[19], row[20])
 
 
 def parse_x_rows(raw_row_generator, x):
@@ -316,13 +319,11 @@ def build_virtual_db(raw_row_generator):
 
 def insert_sales(db, dict_of_sales):
     
-    insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_id, category_id, vendor_id, item_id, bottles_sold, sale_value, sale_vol_ml)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+    insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_id, item_id, bottles_sold, sale_value, sale_vol_ml)
+                        VALUES(?, ?, ?, ?, ?, ?, ?)'''
 
     with setup.db_connect(db) as database:
         database.executemany(insert_statement, dict_of_sales.values())
-
-    dict_of_sales = None
 
 def insert_stores(db, dict_of_stores):
 
@@ -332,8 +333,6 @@ def insert_stores(db, dict_of_stores):
     with setup.db_connect(db) as database:
         database.executemany(insert_statment, dict_of_stores.values())
 
-    dict_of_stores = None
-
 def insert_categories(db, dict_of_categories):
 
     insert_statement = '''INSERT INTO categories (category_id, category_name)
@@ -341,8 +340,6 @@ def insert_categories(db, dict_of_categories):
 
     with setup.db_connect(db) as database:
         database.executemany(insert_statement, dict_of_categories.values())
-
-    dict_of_categories = None
 
 def insert_vendors(db, dict_of_vendors):
 
@@ -352,24 +349,20 @@ def insert_vendors(db, dict_of_vendors):
     with setup.db_connect(db) as database:
         database.executemany(insert_statement, dict_of_vendors.values())
 
-    dict_of_vendors = None
-
 def insert_items(db, dict_of_items):
 
-    insert_statement = '''INSERT INTO items (item_id, item_description, pack_qty, bottle_volume_ml, state_wholesale, state_retail)
-                        VALUES (?, ?, ?, ?, ?, ?)'''
+    insert_statement = '''INSERT INTO items (item_id, category_id, vendor_id, item_description, pack_qty, bottle_volume_ml, state_wholesale, state_retail)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
 
     with setup.db_connect(db) as database:
         database.executemany(insert_statement, dict_of_items.values())
 
-    dict_of_items = None
-
 if __name__ == '__main__':
 
     start = time.time()
-    target_db = 'sales_new_seed.db'
-    abs_path_to_output = build_path('output\\' + target_db)
-    create_all_tables(abs_path_to_output)
+    db_name = 'sales_new_seed.db'
+    target_db = build_path('output\\'+ db_name)
+    create_all_tables(target_db)
 
     abs_path_of_source_data = build_path(r'input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv_generator(abs_path_of_source_data)
