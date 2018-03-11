@@ -25,17 +25,14 @@ def read_csv_generator(filename):
     with open(filename, 'r') as raw_data:
         data_reader = csv.reader(raw_data)
 
-        for i in range(7000000):
-            next(data_reader)
-        # counter = 0
+        next(data_reader)
+
         for row in data_reader:
             # if row[1][6:] == 2016:
             yield row
             # else:
             #     continue
     print('Generator Complete')
-
-
 
 def read_csv_batch(filename, qty):
 
@@ -256,17 +253,20 @@ def read_then_parse(batch_of_rows):
     
     print(len(master_dict))
 
-def build_virtual_db(raw_row_generator):
+def build_virtual_db(raw_row_generator, csv_file_size):
     categories = {}
     items = {}
     sales = {}
     stores = {}
     vendors = {}
+    bytes_read = 0
 
-    count = 0
+    # count = 0
     for row in raw_row_generator:
-        print(row)
+        clear()
+        bytes_read += len(','.join(row).encode('utf-8'))
         parse_a_selective_row(row, categories, items, sales, stores, vendors)
+        print(round((bytes_read/csv_file_size)*100, 4))
     return (categories, items, sales, stores, vendors)
 
 if __name__ == '__main__':
@@ -279,18 +279,19 @@ if __name__ == '__main__':
 
     abs_path_of_source_data = build_path(r'input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv_generator(abs_path_of_source_data)
+    csv_byte_size = os.path.getsize(abs_path_of_source_data)
 
 
-    counter = 3000000
+    # counter = 3000000
     # many_rows = parse_x_rows(raw_data_generator, counter)
 
     # fail_row = [['INV-00090800001', '09/01/2016', '4725', "Casey's General Store #1548 / Ankeny", '', '', '', '', '', '', '1012100', 'Canadian Whiskies', '260', 'DIAGEO AMERICAS', '11296', 'Crown Royal', '12', '750', '$15.07', '$22.61', '10', '$22.61', '7.50', '1.98']]
-    categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
+    categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator, csv_byte_size)
     # counter, full_year = parse_a_year(raw_data_generator, '2016')
 
 
     # read_then_parse(read_csv_batch(abs_path_of_source_data, counter))
 
     stop = time.time()
-    print('{} rows took {} seconds'.format(counter, stop - start))
+    print('{} rows took {} seconds'.format(len(sales), stop - start))
     print(len(categories), len(items), len(sales), len(stores), len(vendors))
