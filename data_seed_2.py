@@ -18,6 +18,7 @@ def build_path(filename):
 
     return abs_file_path
 
+#-- CSV READERS
 def read_csv_generator(filename):
     '''a generator function that reads through the CSV file,
     yielding a single row as needed'''
@@ -45,6 +46,7 @@ def read_csv_batch(filename, qty):
     
     return batch_of_lines
 
+#-- FIELD FORMATTING
 def format_date_field(field):
     if field:
         output_date_str = datetime.datetime.strptime(field, '%m/%d/%Y').strftime('%Y-%m-%d')
@@ -111,6 +113,7 @@ def format_zip_code(field):
     else:
         return None
 
+#-- ROW PARSING
 def parse_a_row(row):
     '''parse an entire row from the raw csv'''
     #----   sale fields (1)
@@ -164,19 +167,34 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row.insert(8, long)                     # long
         row[9] = format_int_field(row[9])       # county number
                                             # county name is pre-seeded during table creation
-        stores[row[2]] = row[2:10]
+        stores[row[2]] = {
+            'store_number': row[2],
+            'store_name': row[3],
+            'address': row[4],
+            'city': row[5],
+            'zip_code': row[6],
+            'lat':row[7],
+            'long': row[8],
+            'county_number': row[9]
+        }
     #----   cateogry fields
     if not row[11] in categories:
         row[11] = format_int_field(row[11])     # category number
         row[12] = format_text_field(row[12])    # category name
 
-        categories[row[11]] = [row[11:13]]
+        categories[row[11]] = {
+            'category_number': row[11],
+            'category_name': row[12],
+        }
     #----   vendor fields
     if not row[13] in vendors:
         row[13] = format_int_field(row[13])     # vendor number
         row[14] = format_text_field(row[14])    # vendor name
 
-        vendors[row[13]] = row[13:15]
+        vendors[row[13]] = {
+            'vendor_number': row[13],
+            'vendor_name': row[14]
+        }
     #----   item fields
     if not row[15] in items:
         row[15] = format_int_field(row[15])     # item number
@@ -186,7 +204,14 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[19] = format_money_field(row[19])   # state wholesale cost
         row[20] = format_money_field(row[20])   # state retail cost
 
-        items[row[15]] = row[15:21]
+        items[row[15]] = {
+            'item_number': row[15],
+            'item_description': row[16],
+            'pack_qty': row[17],
+            'bottle_vol_ml': row[18],
+            'state_wholesale_cost': row[19],
+            'state_retail_cost': row[20]
+        }
 
     #----   sale fields (1)
     if not row[0] in sales:
@@ -196,17 +221,13 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[21] = format_int_field(row[21])     # quantity sold
         row[22] = format_money_field(row[22])   # sale ammount
         row[23] = format_liter_to_ml(row[23])   # sale volume in ml
-        sales[row[0]] = row[:2].append(row[21:24])
-
-def parse_single_row(raw_csv_generator):
-    counter = 0
-    for row in raw_csv_generator:
-        print(row)
-        counter += 1
-        single_row = parse_a_row(row)
-
-        if counter == 1:
-            return row
+        sales[row[0]] = {
+            'invoice_id': row[0],
+            'date': row[1],
+            'qty_sold': row[21],
+            'sale_ammount': row[22],
+            'sale_vol_ml': row[23]
+        }
 
 def parse_x_rows(raw_row_generator, x):
     master_dict = {}
@@ -220,8 +241,8 @@ def parse_x_rows(raw_row_generator, x):
         if counter == x:
             return master_dict
 
-def create_all_tables(db_name):
-    with setup.db_connect(db_name) as database:
+def create_all_tables(db):
+    with setup.db_connect(db) as database:
 
         county_table = setup.CountySchema()
         database.execute(county_table.create_counties_table())
@@ -269,6 +290,10 @@ def build_virtual_db(raw_row_generator, csv_file_size):
         # if count == x:
         #     break
     return (categories, items, sales, stores, vendors)
+
+#-- DATA INSERTS
+
+def insert_sales(db, dict_of_sales):
 
 if __name__ == '__main__':
 
