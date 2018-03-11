@@ -61,7 +61,9 @@ def format_int_field(field):
 def format_lat_long(field):
     '''this function takes an entry. It regex matches lattitude and longitude values
     inside parens and comma seperated and returns a tuple for lat, long'''
-    
+
+    lat, long = (None, None)
+
     if field:
         pattern = re.compile(r'^.*\((?P<lat>-?\d+\.\d+), (?P<long>-?\d+\.\d+).*$')
         match = pattern.match(field.replace('\n', ' '))
@@ -69,11 +71,7 @@ def format_lat_long(field):
             lat = float(match.group('lat'))
             long = float(match.group('long'))
         except:
-            lat = None
-            long = None
-    else:
-        lat = None
-        long = None
+            pass
     return (lat, long)
 
 def format_liter_to_ml(field):
@@ -259,14 +257,17 @@ def build_virtual_db(raw_row_generator, csv_file_size):
     sales = {}
     stores = {}
     vendors = {}
-    bytes_read = 0
+    # bytes_read = 0
 
     # count = 0
     for row in raw_row_generator:
-        clear()
-        bytes_read += len(','.join(row).encode('utf-8'))
+        # count += 1
+        # clear()
+        # bytes_read += len(','.join(row).encode('utf-8'))
         parse_a_selective_row(row, categories, items, sales, stores, vendors)
-        print(round((bytes_read/csv_file_size)*100, 4))
+        # print(round((bytes_read/csv_file_size)*100, 4))
+        # if count == x:
+        #     break
     return (categories, items, sales, stores, vendors)
 
 if __name__ == '__main__':
