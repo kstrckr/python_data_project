@@ -368,8 +368,8 @@ if __name__ == '__main__':
 
     start = time.time()
     target_db = 'sales_new_seed.db'
-
-    create_all_tables(target_db)
+    abs_path_to_output = build_path('output\\' + target_db)
+    create_all_tables(abs_path_to_output)
 
     abs_path_of_source_data = build_path(r'input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
     raw_data_generator = read_csv_generator(abs_path_of_source_data)

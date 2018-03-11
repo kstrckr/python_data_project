@@ -15,10 +15,10 @@ class SaleSchema:
         bottles_sold INTEGER NOT NULL,
         sale_value INTEGER,
         sale_vol_ml INTEGER NOT NULL,
-        FOREIGN KEY (store_number) REFERENCES stores(store_number),
-        FOREIGN KEY (category_number) REFERENCES categories(category_number),
-        FOREIGN KEY (vendor_number) REFERENCES vendors(vendor_number),
-        FOREIGN KEY (item_number) REFERENCES items(item_number)'''
+        FOREIGN KEY (store_id) REFERENCES stores(store_number),
+        FOREIGN KEY (category_id) REFERENCES categories(category_number),
+        FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_number),
+        FOREIGN KEY (item_id) REFERENCES items(item_number)'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS sales'
 
