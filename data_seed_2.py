@@ -169,21 +169,23 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[21] = format_int_field(row[21])     # quantity sold
         row[22] = format_money_field(row[22])   # sale ammount
         row[23] = format_liter_to_ml(row[23])   # sale volume in ml
-        sales[row[0]] = {
-            'invoice_id': row[0],
-            'date': row[1],
-            'store_number': row[2],
-            'category_number': row[11],
-            'vendor_number': row[13],
-            'item_number': row[15],
-            'qty_sold': row[21],
-            'sale_ammount': row[22],
-            'sale_vol_ml': row[23]
-        }
+        # sales[row[0]] = {
+        #     'invoice_id': row[0],
+        #     'date': row[1],
+        #     'store_number': row[2],
+        #     'category_number': row[11],
+        #     'vendor_number': row[13],
+        #     'item_number': row[15],
+        #     'qty_sold': row[21],
+        #     'sale_ammount': row[22],
+        #     'sale_vol_ml': row[23]
+        # }
+
+        sales[row[0]] = (row[0], row[1], row[2], row[11], row[13], row[15], row[21], row[22], row[23])
 
     #----   store fields
     if not row[2] in stores:
-        row[2] = format_int_field(row[2])       # store number
+        # row[2] = format_int_field(row[2])       # store number
         row[3] = format_text_field(row[3])      # store name
         row[4] = format_text_field(row[4])      # address
         row[5] = format_text_field(row[5])      # city
@@ -194,51 +196,59 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[8] = long                           # long
         row[9] = format_int_field(row[9])       # county number
                                                 # county name is pre-seeded during table creation
-        stores[row[2]] = {
-            'store_number': row[2],
-            'store_name': row[3],
-            'address': row[4],
-            'city': row[5],
-            'zip_code': row[6],
-            'lat':row[7],
-            'long': row[8],
-            'county_number': row[9]
-        }
+        # stores[row[2]] = {
+        #     'store_number': row[2],
+        #     'store_name': row[3],
+        #     'address': row[4],
+        #     'city': row[5],
+        #     'zip_code': row[6],
+        #     'lat':row[7],
+        #     'long': row[8],
+        #     'county_number': row[9]
+        # }
+
+        stores[row[2]] = (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
     #----   cateogry fields
     if not row[11] in categories:
-        row[11] = format_int_field(row[11])     # category number
+        # row[11] = format_int_field(row[11])     # category number
         row[12] = format_text_field(row[12])    # category name
 
-        categories[row[11]] = {
-            'category_number': row[11],
-            'category_name': row[12],
-        }
+        # categories[row[11]] = {
+        #     'category_number': row[11],
+        #     'category_name': row[12],
+        # }
+
+        categories[row[11]] = (row[11], row[12])
     #----   vendor fields
     if not row[13] in vendors:
-        row[13] = format_int_field(row[13])     # vendor number
+        # row[13] = format_int_field(row[13])     # vendor number
         row[14] = format_text_field(row[14])    # vendor name
 
-        vendors[row[13]] = {
-            'vendor_number': row[13],
-            'vendor_name': row[14]
-        }
+        # vendors[row[13]] = {
+        #     'vendor_number': row[13],
+        #     'vendor_name': row[14]
+        # }
+
+        vendors[row[13]] = (row[13], row[14])
     #----   item fields
     if not row[15] in items:
-        row[15] = format_int_field(row[15])     # item number
+        # row[15] = format_int_field(row[15])     # item number
         row[16] = format_text_field(row[16])    # item description
         row[17] = format_int_field(row[17])     # pack qty
         row[18] = format_int_field(row[18])     # bottle volume ml
         row[19] = format_money_field(row[19])   # state wholesale cost
         row[20] = format_money_field(row[20])   # state retail cost
 
-        items[row[15]] = {
-            'item_number': row[15],
-            'item_description': row[16],
-            'pack_qty': row[17],
-            'bottle_vol_ml': row[18],
-            'state_wholesale_cost': row[19],
-            'state_retail_cost': row[20]
-        }
+        # items[row[15]] = {
+        #     'item_number': row[15],
+        #     'item_description': row[16],
+        #     'pack_qty': row[17],
+        #     'bottle_vol_ml': row[18],
+        #     'state_wholesale_cost': row[19],
+        #     'state_retail_cost': row[20]
+        # }
+
+        items[row[15]] = (row[15], row[16], row[17], row[18], row[19], row[20])
 
 
 def parse_x_rows(raw_row_generator, x):
@@ -292,7 +302,7 @@ def build_virtual_db(raw_row_generator):
     vendors = {}
     # bytes_read = 0
 
-    count = 0
+    # count = 0
     for row in raw_row_generator:
         # count += 1
 
@@ -306,16 +316,53 @@ def build_virtual_db(raw_row_generator):
 
 def insert_sales(db, dict_of_sales):
     
-    insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_number, category_number, vendor_number, item_number, bottles_sold, sale_value, sale_vol_ml)
+    insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_id, category_id, vendor_id, item_id, bottles_sold, sale_value, sale_vol_ml)
                         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'''
-    
-    all_sales = []
 
-    for sale, values in dict_of_sales.items():
-        all_sales.append(tuple(values.values()))
     with setup.db_connect(db) as database:
-        database.executemany(insert_statement, all_sales)
+        database.executemany(insert_statement, dict_of_sales.values())
 
+    dict_of_sales = None
+
+def insert_stores(db, dict_of_stores):
+
+    insert_statment = '''INSERT INTO stores(store_id, store_name, address, city, zip_code, store_lat, store_long, county_id)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?)'''
+
+    with setup.db_connect(db) as database:
+        database.executemany(insert_statment, dict_of_stores.values())
+
+    dict_of_stores = None
+
+def insert_categories(db, dict_of_categories):
+
+    insert_statement = '''INSERT INTO categories (category_id, category_name)
+                        VALUES(?, ?)'''
+
+    with setup.db_connect(db) as database:
+        database.executemany(insert_statement, dict_of_categories.values())
+
+    dict_of_categories = None
+
+def insert_vendors(db, dict_of_vendors):
+
+    insert_statement = '''INSERT INTO vendors (vendor_id, vendor_name)
+                        VALUES(?, ?)'''
+
+    with setup.db_connect(db) as database:
+        database.executemany(insert_statement, dict_of_vendors.values())
+
+    dict_of_vendors = None
+
+def insert_items(db, dict_of_items):
+
+    insert_statement = '''INSERT INTO items (item_id, item_description, pack_qty, bottle_volume_ml, state_wholesale, state_retail)
+                        VALUES (?, ?, ?, ?, ?, ?)'''
+
+    with setup.db_connect(db) as database:
+        database.executemany(insert_statement, dict_of_items.values())
+
+    dict_of_items = None
 
 if __name__ == '__main__':
 
@@ -328,9 +375,20 @@ if __name__ == '__main__':
     raw_data_generator = read_csv_generator(abs_path_of_source_data)
     print('parsing data')
     categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
-    print('parsing complete\ninserting values')
+    print('\nparsing complete')
+    print('\nReady to insert:\n{} Categories\n{} items\n{} sales\n{} stores\n{} vendors'.format(len(categories), len(items), len(sales), len(stores), len(vendors)))
+
+    print('inserting sales')
     insert_sales(target_db, sales)
+    print('inserting stores')
+    insert_stores(target_db, stores)
+    print('inserting categories')
+    insert_categories(target_db, categories)
+    print('inserting vendors')
+    insert_vendors(target_db, vendors)
+    print('inserting items')
+    insert_items(target_db, items)
 
     stop = time.time()
-    print('{} rows took {} seconds'.format(len(sales), stop - start))
-    print(len(categories), len(items), len(sales), len(stores), len(vendors))
+    print('\ndatabase seeding took {} seconds'.format(stop - start))
+    

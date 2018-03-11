@@ -8,10 +8,10 @@ class SaleSchema:
     sales_table_cols = '''
         sale_id TEXT NOT NULL PRIMARY KEY,
         sale_date DATE NOT NULL,
-        store_number INTEGER NOT NULL,
-        category_number INTEGER,
-        vendor_number INTEGER,
-        item_number INTEGER NOT NULL,
+        store_id INTEGER NOT NULL,
+        category_id INTEGER,
+        vendor_id INTEGER,
+        item_id INTEGER NOT NULL,
         bottles_sold INTEGER NOT NULL,
         sale_value INTEGER,
         sale_vol_ml INTEGER NOT NULL,
@@ -28,8 +28,8 @@ class SaleSchema:
 
 class CategorieSchema:
     categories_table_cols = '''
-        category_number INTEGER NOT NULL PRIMARY KEY,
-        category_name TEXT NOT NULL'''
+        category_id INTEGER NOT NULL PRIMARY KEY,
+        category_name TEXT'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS categories'
 
@@ -39,7 +39,7 @@ class CategorieSchema:
 
 class VendorSchema:
     vendors_table_cols = '''
-        vendor_number INTEGER NOT NULL PRIMARY KEY,
+        vendor_id INTEGER NOT NULL PRIMARY KEY,
         vendor_name TEXT NOT NULL'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS vendors'
@@ -50,12 +50,12 @@ class VendorSchema:
 
 class ItemSchema:
     items_table_cols = '''
-        item_number INTEGER NOT NULL PRIMARY KEY,
+        item_id INTEGER NOT NULL PRIMARY KEY,
         item_description TEXT NOT NULL,
         pack_qty INTEGER NOT NULL,
         bottle_volume_ml INTEGER NOT NULL,
-        state_bottle_cost INTEGER NOT NULL,
-        state_bottle_retail INTEGER NOT NULL'''
+        state_wholesale INTEGER NOT NULL,
+        state_retail INTEGER NOT NULL'''
 
     table_statement = 'CREATE TABLE IF NOT EXISTS items'
 
@@ -66,14 +66,14 @@ class ItemSchema:
 class StoreSchema:
 
     store_table_cols = '''
-        store_number INTEGER NOT NULL PRIMARY KEY, 
+        store_id INTEGER NOT NULL PRIMARY KEY, 
         store_name TEXT NOT NULL, 
         address TEXT, 
         city TEXT,
         zip_code INTEGER, 
         store_lat REAL, 
         store_long REAL, 
-        county_id INTEGER NOT NULL, 
+        county_id INTEGER, 
         FOREIGN KEY (county_id) REFERENCES counties(county_id)'''
             
     table_statement = 'CREATE TABLE IF NOT EXISTS stores'
