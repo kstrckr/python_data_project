@@ -253,19 +253,6 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
 
         items[row[15]] = (row[15], row[11], row[13], row[16], row[17], row[18], row[19], row[20])
 
-
-def parse_x_rows(raw_row_generator, x):
-    master_dict = {}
-    counter = 0
-
-    for row in raw_row_generator:
-        counter += 1
-        single_row = parse_a_row(row)
-        master_dict[single_row[0]] = single_row
-
-        if counter == x:
-            return master_dict
-
 def create_all_tables(db):
     with setup.db_connect(db) as database:
 
@@ -359,14 +346,25 @@ def insert_items(db, dict_of_items):
 
 if __name__ == '__main__':
 
+    # sets start time for efficiency comparisons
     start = time.time()
+
+    # name of target DB to be created or connected to in the directory set in the following step
     db_name = 'sales_new_seed.db'
+    # path to the target db
     target_db = build_path('output\\'+ db_name)
+
+    # creates all tables required for the project IF NOT EXISTS
     create_all_tables(target_db)
 
+    # path to the input CSV
     abs_path_of_source_data = build_path(r'input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+
+    # CSV reader creates a generator for line-by-line parsing of the input data
     raw_data_generator = read_csv_generator(abs_path_of_source_data)
-    print('parsing data')
+    print('\nparsing data')
+
+    # builds a dictionary for each table, with a value eaual to each row's PK and a value of a tuple for each row of parsed data
     categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
     print('\nparsing complete')
     print('\nReady to insert:\n{} Categories\n{} items\n{} sales\n{} stores\n{} vendors'.format(len(categories), len(items), len(sales), len(stores), len(vendors)))
