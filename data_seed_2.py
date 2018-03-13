@@ -156,6 +156,12 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
     
     row.insert(8, None)
 
+    temp_sales = []
+    temp_stores = []
+    temp_categories = []
+    temp_vendors = []
+    temp_items = []
+
     #----   sale fields (1)
     if not row[0] in sales:
         row[0] = format_text_field(row[0])      # invoice num
@@ -179,7 +185,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'sale_vol_ml': row[23]
         # }
 
-        sales[row[0]] = (row[0], row[1], row[2], row[15], row[21], row[22], row[23])
+        temp_sales = [row[0], (row[0], row[1], row[2], row[15], row[21], row[22], row[23])]
 
     #----   store fields
     if not row[2] in stores:
@@ -205,7 +211,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'county_number': row[9]
         # }
 
-        stores[row[2]] = (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+        temp_stores = [row[2], (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])]
     #----   cateogry fields
     if not row[11] in categories:
         row[11] = format_int_field(row[11])     # category number
@@ -216,8 +222,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'category_name': row[12],
         # }
 
-        categories[row[11]] = (row[11], row[12])
-    
+        temp_categories = [row[11], (row[11], row[12])]
     #----   vendor fields
     if not row[13] in vendors:
         row[13] = format_int_field(row[13])     # vendor number
@@ -228,7 +233,7 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'vendor_name': row[14]
         # }
 
-        vendors[row[13]] = (row[13], row[14])
+        temp_vendors = [row[13], (row[13], row[14])]
     #----   item fields
     if not row[15] in items:
         # row[15] = format_int_field(row[15])     # item number
@@ -251,7 +256,9 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         #     'state_retail_cost': row[20]
         # }
 
-        items[row[15]] = (row[15], row[11], row[13], row[16], row[17], row[18], row[19], row[20])
+        temp_items = [row[15], (row[15], row[11], row[13], row[16], row[17], row[18], row[19], row[20])]
+
+    return (temp_sales, temp_stores, temp_categories, temp_vendors, temp_items)
 
 def create_all_tables(db):
     with setup.db_connect(db) as database:
@@ -296,13 +303,24 @@ def build_virtual_db(raw_row_generator):
     for row in raw_row_generator:
         # count += 1
 
-        parse_a_selective_row(row, categories, items, sales, stores, vendors)
+        new_sales, new_stores, new_categories, new_vendors, new_items = parse_a_selective_row(row, categories, items, sales, stores, vendors)
+
+        if new_sales:
+            sales[new_sales[0]] = new_sales[1]
+        if new_stores:
+            stores[new_stores[0]] = new_stores[1]
+        if new_categories:
+            categories[new_categories[0]] = new_categories[1]
+        if new_vendors:
+            vendors[new_vendors[0]] = new_vendors[1]
+        if new_items:
+            items[new_items[0]] = new_items[1]
 
         # if count == 1000000:
         #     break
     return (categories, items, sales, stores, vendors)
 
-#-- DATA INSERTS
+#-- TABLE INSERTS
 
 def insert_sales(db, dict_of_sales):
     
@@ -367,8 +385,12 @@ if __name__ == '__main__':
     # builds a dictionary for each table, with a value eaual to each row's PK and a value of a tuple for each row of parsed data
     categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
     print('\nparsing complete')
+
+    # parsing results
     print('\nReady to insert:\n{} Categories\n{} items\n{} sales\n{} stores\n{} vendors'.format(len(categories), len(items), len(sales), len(stores), len(vendors)))
 
+
+    # inserts to each table in turn
     print('inserting sales')
     insert_sales(target_db, sales)
     print('inserting stores')
@@ -381,5 +403,6 @@ if __name__ == '__main__':
     insert_items(target_db, items)
 
     stop = time.time()
+    # final results
     print('\ndatabase seeding took {} seconds'.format(stop - start))
     
