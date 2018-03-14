@@ -22,8 +22,9 @@ def build_path(filename):
 def read_csv_generator(filename):
     '''a generator function that reads through the CSV file,
     yielding a single row as needed'''
-    print('Generator Initiated')
+    
     with open(filename, 'r') as raw_data:
+        print('Generator Initiated')
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
