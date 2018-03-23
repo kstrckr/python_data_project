@@ -158,7 +158,7 @@ class CountySchema:
         (68, 'Monroe'),
         (69, 'Montgomery'),
         (70, 'Muscatine'),
-        (71, 'O\'brien'),
+        (71, 'O\'Brien'),
         (72, 'Osceola'),
         (73, 'Page'),
         (74, 'Palo Alto'),

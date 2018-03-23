@@ -8,23 +8,13 @@ import sqlite3
 
 import db_setup as setup
 
-clear = lambda: os.system('cls')
-
-def build_path(filename):
-    '''lets you use a relative path to the data, rather than requiring absolute'''
-    script_dir = os.path.dirname(__file__)
-    rel_path = filename
-    abs_file_path = os.path.join(script_dir, rel_path)
-
-    return abs_file_path
-
 #-- CSV READERS
 def read_csv_generator(filename):
     '''a generator function that reads through the CSV file,
     yielding a single row as needed'''
-    
+    print('Generator Initiated')
     with open(filename, 'r') as raw_data:
-        print('Generator Initiated')
+        
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
@@ -34,18 +24,7 @@ def read_csv_generator(filename):
             yield row
             # else:
             #     continue
-    print('Generator Complete')
-
-def read_csv_batch(filename, qty):
-
-    with open(filename, 'r') as raw_data:
-        data_reader = csv.reader(raw_data)
-
-        next(data_reader)
-        
-        batch_of_lines = [next(data_reader) for row in range(qty)]
-    
-    return batch_of_lines
+    print('\nGenerator Complete')
 
 #-- FIELD FORMATTING
 def format_date_field(field):
@@ -174,17 +153,6 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[21] = format_int_field(row[21])     # quantity sold
         row[22] = format_money_field(row[22])   # sale ammount
         row[23] = format_liter_to_ml(row[23])   # sale volume in ml
-        # sales[row[0]] = {
-        #     'invoice_id': row[0],
-        #     'date': row[1],
-        #     'store_number': row[2],
-        #     'category_number': row[11],
-        #     'vendor_number': row[13],
-        #     'item_number': row[15],
-        #     'qty_sold': row[21],
-        #     'sale_ammount': row[22],
-        #     'sale_vol_ml': row[23]
-        # }
 
         temp_sales = [row[0], (row[0], row[1], row[2], row[15], row[21], row[22], row[23])]
 
@@ -200,17 +168,6 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[7] = lat                            # lat
         row[8] = long                           # long
         row[9] = format_int_field(row[9])       # county number
-                                                # county name is pre-seeded during table creation
-        # stores[row[2]] = {
-        #     'store_number': row[2],
-        #     'store_name': row[3],
-        #     'address': row[4],
-        #     'city': row[5],
-        #     'zip_code': row[6],
-        #     'lat':row[7],
-        #     'long': row[8],
-        #     'county_number': row[9]
-        # }
 
         temp_stores = [row[2], (row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])]
     #----   cateogry fields
@@ -218,21 +175,11 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[11] = format_int_field(row[11])     # category number
         row[12] = format_text_field(row[12])    # category name
 
-        # categories[row[11]] = {
-        #     'category_number': row[11],
-        #     'category_name': row[12],
-        # }
-
         temp_categories = [row[11], (row[11], row[12])]
     #----   vendor fields
     if not row[13] in vendors:
         row[13] = format_int_field(row[13])     # vendor number
         row[14] = format_text_field(row[14])    # vendor name
-
-        # vendors[row[13]] = {
-        #     'vendor_number': row[13],
-        #     'vendor_name': row[14]
-        # }
 
         temp_vendors = [row[13], (row[13], row[14])]
     #----   item fields
@@ -246,22 +193,14 @@ def parse_a_selective_row(row, categories, items, sales, stores, vendors):
         row[19] = format_money_field(row[19])   # state wholesale cost
         row[20] = format_money_field(row[20])   # state retail cost
 
-        # items[row[15]] = {
-        #     'item_number': row[15],
-        #     'category_number': row[11],
-        #     'vendor_number': row[13],
-        #     'item_description': row[16],
-        #     'pack_qty': row[17],
-        #     'bottle_vol_ml': row[18],
-        #     'state_wholesale_cost': row[19],
-        #     'state_retail_cost': row[20]
-        # }
-
         temp_items = [row[15], (row[15], row[11], row[13], row[16], row[17], row[18], row[19], row[20])]
 
     return (temp_sales, temp_stores, temp_categories, temp_vendors, temp_items)
 
 def create_all_tables(db):
+
+    print('Creating Tables')
+
     with setup.db_connect(db) as database:
 
         county_table = setup.CountySchema()
@@ -282,15 +221,6 @@ def create_all_tables(db):
 
         sales_table = setup.SaleSchema()
         database.execute(sales_table.create_sales_table())
-
-def read_then_parse(batch_of_rows):
-
-    master_dict = {}
-
-    for row in batch_of_rows:
-        master_dict[row[0]] = parse_a_row(row)
-    
-    print(len(master_dict))
 
 def build_virtual_db(raw_row_generator):
     categories = {}
@@ -371,24 +301,25 @@ if __name__ == '__main__':
     # name of target DB to be created or connected to in the directory set in the following step
     db_name = 'sales_new_seed.db'
     # path to the target db
-    target_db = build_path('output\\'+ db_name)
+    target_db = os.path.join('output', db_name)
 
     # creates all tables required for the project IF NOT EXISTS
     create_all_tables(target_db)
 
     # path to the input CSV
-    abs_path_of_source_data = build_path(r'input\iowa-liquor-sales\Iowa_Liquor_Sales.csv')
+    rel_path_to_data = os.path.join('input', 'iowa-liquor-sales', 'Iowa_Liquor_Sales.csv')
 
     # CSV reader creates a generator for line-by-line parsing of the input data
-    raw_data_generator = read_csv_generator(abs_path_of_source_data)
-    print('\nparsing data')
+    raw_data_generator = read_csv_generator(rel_path_to_data)
+
+    print('Parsing data')
 
     # builds a dictionary for each table, with a value eaual to each row's PK and a value of a tuple for each row of parsed data
     categories, items, sales, stores, vendors = build_virtual_db(raw_data_generator)
-    print('\nparsing complete')
+    print('Parsing complete')
 
     # parsing results
-    print('\nReady to insert:\n{} Categories\n{} items\n{} sales\n{} stores\n{} vendors'.format(len(categories), len(items), len(sales), len(stores), len(vendors)))
+    print('\nReady to insert:\n{} Categories\n{} items\n{} sales\n{} stores\n{} vendors\n'.format(len(categories), len(items), len(sales), len(stores), len(vendors)))
 
 
     # inserts to each table in turn
