@@ -18,12 +18,15 @@ def read_csv_generator(filename):
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
-
+        counter = 0
         for row in data_reader:
             # if row[1][6:] == 2016:
+            counter += 1
             yield row
             # else:
             #     continue
+            if counter == 9000000:
+                break
     print('\nGenerator Complete')
 
 #-- FIELD FORMATTING
@@ -258,8 +261,11 @@ def insert_sales(db, dict_of_sales):
     insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_id, item_id, bottles_sold, sale_value, sale_vol_ml)
                         VALUES(?, ?, ?, ?, ?, ?, ?)'''
 
+    
     with setup.db_connect(db) as database:
-        database.executemany(insert_statement, dict_of_sales.values())
+        
+        cur = database.cursor()
+        cur.executemany(insert_statement, dict_of_sales.values())
 
 def insert_stores(db, dict_of_stores):
 
@@ -267,7 +273,8 @@ def insert_stores(db, dict_of_stores):
                     VALUES(?, ?, ?, ?, ?, ?, ?, ?)'''
 
     with setup.db_connect(db) as database:
-        database.executemany(insert_statment, dict_of_stores.values())
+        cur = database.cursor()
+        cur.executemany(insert_statment, dict_of_stores.values())
 
 def insert_categories(db, dict_of_categories):
 
@@ -275,7 +282,8 @@ def insert_categories(db, dict_of_categories):
                         VALUES(?, ?)'''
 
     with setup.db_connect(db) as database:
-        database.executemany(insert_statement, dict_of_categories.values())
+        cur = database.cursor()
+        cur.executemany(insert_statement, dict_of_categories.values())
 
 def insert_vendors(db, dict_of_vendors):
 
@@ -283,7 +291,8 @@ def insert_vendors(db, dict_of_vendors):
                         VALUES(?, ?)'''
 
     with setup.db_connect(db) as database:
-        database.executemany(insert_statement, dict_of_vendors.values())
+        cur = database.cursor()
+        cur.executemany(insert_statement, dict_of_vendors.values())
 
 def insert_items(db, dict_of_items):
 
@@ -291,7 +300,8 @@ def insert_items(db, dict_of_items):
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
 
     with setup.db_connect(db) as database:
-        database.executemany(insert_statement, dict_of_items.values())
+        cur = database.cursor()
+        cur.executemany(insert_statement, dict_of_items.values())
 
 if __name__ == '__main__':
 
