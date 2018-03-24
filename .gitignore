@@ -1,5 +1,5 @@
 # directories
-/input/iowa-liquor-sales/*
+/input/iowa-liquor-sales/Iowa_Liquor_Sales.csv
 /output/*
 
 # databases
