@@ -18,15 +18,15 @@ def read_csv_generator(filename):
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
-        counter = 0
+        # counter = 0
         for row in data_reader:
             # if row[1][6:] == 2016:
-            counter += 1
+            # counter += 1
             yield row
             # else:
             #     continue
-            if counter == 9000000:
-                break
+            # if counter == 9000000:
+            #     break
     print('\nGenerator Complete')
 
 #-- FIELD FORMATTING
