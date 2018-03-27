@@ -18,15 +18,12 @@ def read_csv_generator(filename):
         data_reader = csv.reader(raw_data)
 
         next(data_reader)
-        # counter = 0
         for row in data_reader:
-            # if row[1][6:] == 2016:
-            # counter += 1
-            yield row
-            # else:
-            #     continue
-            # if counter == 9000000:
-            #     break
+            if row[1][6:] == '2016':
+                yield row
+            else:
+                continue
+
     print('\nGenerator Complete')
 
 #-- FIELD FORMATTING
@@ -250,7 +247,7 @@ def build_virtual_db(raw_row_generator):
         if new_items:
             items[new_items[0]] = new_items[1]
 
-        # if count == 1000000:
+        # if count == 9000000:
         #     break
     return (categories, items, sales, stores, vendors)
 
@@ -261,9 +258,8 @@ def insert_sales(db, dict_of_sales):
     insert_statement = '''INSERT INTO sales(sale_id, sale_date, store_id, item_id, bottles_sold, sale_value, sale_vol_ml)
                         VALUES(?, ?, ?, ?, ?, ?, ?)'''
 
-    
+
     with setup.db_connect(db) as database:
-        
         cur = database.cursor()
         cur.executemany(insert_statement, dict_of_sales.values())
 
