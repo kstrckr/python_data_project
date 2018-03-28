@@ -13,4 +13,4 @@ To view this report:
 7. After seeing the `database seeding took X seconds` launch Anaconda, either Navigator or Prompt. 
     **A**. If using prompt, navigate to the project's root directory, run `jupyter notebook Iowa_liquor_data_vis.ipynb`
     **B**. If using navigator, launch Jupyter Notebook from the main menu and manually navigate to the project's root, click on `Iowa_liquor_data_vis.ipynb` to open the notebook
-8. 
+8. In the jupyter notebook's menu bar, select `Cell` and `Run All`
