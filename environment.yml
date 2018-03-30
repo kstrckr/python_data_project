@@ -1,4 +1,4 @@
-name: C:\Users\home\Anaconda3
+name: py_data_env
 channels:
 - defaults
 dependencies:
@@ -33,9 +33,6 @@ dependencies:
 - clyent=1.2.2=py36hb10d595_1
 - colorama=0.3.9=py36h029ae33_0
 - comtypes=1.1.2=py36heb9b3d1_0
-- conda=4.3.30=py36h7e176b0_0
-- conda-build=3.0.27=py36h309a530_0
-- conda-env=2.6.0=h36134e3_1
 - conda-verify=2.0.0=py36h065de53_0
 - console_shortcut=0.1.1=h6bb2dd7_3
 - contextlib2=0.5.5=py36he5d52c0_0
@@ -233,5 +230,5 @@ dependencies:
   - tables==3.4.2
   - win-inet-pton==1.0.1
   - win-unicode-console==0.5
-prefix: C:\Users\home\Anaconda3
+prefix: C:\Users\home\Anaconda3\envs\py_data_env
 
