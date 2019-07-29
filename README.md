@@ -19,12 +19,12 @@ To view this report:
 
 ### Database Table Schemas
 
-![database design schema](https://www.kurtstrecker.com/py_data_imgs/sales_new_seed_DB_SCHEMA.PNG)
+![database design schema](/images/sales_new_seed_DB_SCHEMA.PNG)
 
 sneak-peek at graphed data:
 
-![map of annual sales](https://www.kurtstrecker.com/py_data_imgs/annual_sales_map.png)
+![map of annual sales](/images/annual_sales_map.png)
 
-![map of ml/dollar spent](https://www.kurtstrecker.com/py_data_imgs/vol_map.png)
+![map of ml/dollar spent](/images/vol_map.png)
 
-![scatter plot of sales vs vol/dollar vs population](https://www.kurtstrecker.com/py_data_imgs/sales_vs_vol_vs_pop.png)
+![scatter plot of sales vs vol/dollar vs population](/images/sales_vs_vol_vs_pop.png)
